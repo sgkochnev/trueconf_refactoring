@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: dockerfile
+    container_name: userapi
+    ports:
+      - 8080:8080
+    volumes:
+      - json_data:/usr/src/userapi/store
+    restart: always
+
+volumes:
+  json_data:
