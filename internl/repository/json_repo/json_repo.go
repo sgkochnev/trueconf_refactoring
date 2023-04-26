@@ -7,10 +7,12 @@ import (
 	"refactoring/internl/entity"
 	rerror "refactoring/internl/repository/repo_error"
 	"strconv"
+	"sync"
 	"time"
 )
 
 type jsonStore struct {
+	sync.RWMutex
 	filename string
 }
 
@@ -51,10 +53,16 @@ func (repo *jsonStore) commit(s *entity.UserStore) error {
 }
 
 func (repo *jsonStore) GetUsers() (*entity.UserStore, error) {
+	repo.RLock()
+	defer repo.RUnlock()
+
 	return repo.userStore()
 }
 
 func (repo *jsonStore) CreateUser(user *entity.User) (string, error) {
+	repo.Lock()
+	defer repo.Unlock()
+
 	s, err := repo.userStore()
 	if err != nil {
 		return "", err
@@ -73,6 +81,9 @@ func (repo *jsonStore) CreateUser(user *entity.User) (string, error) {
 }
 
 func (repo *jsonStore) GetUser(id string) (*entity.User, error) {
+	repo.RLock()
+	defer repo.RUnlock()
+
 	s, err := repo.userStore()
 	if err != nil {
 		return nil, err
@@ -83,6 +94,9 @@ func (repo *jsonStore) GetUser(id string) (*entity.User, error) {
 }
 
 func (repo *jsonStore) UpdateUser(id string, user *entity.User) error {
+	repo.Lock()
+	defer repo.Unlock()
+
 	s, err := repo.userStore()
 	if err != nil {
 		return err
@@ -100,6 +114,9 @@ func (repo *jsonStore) UpdateUser(id string, user *entity.User) error {
 }
 
 func (repo *jsonStore) DeleteUser(id string) error {
+	repo.Lock()
+	defer repo.Unlock()
+
 	s, err := repo.userStore()
 	if err != nil {
 		return err
